@@ -1,0 +1,6 @@
+{
+  "api_key": "",
+  "model": "zai/glm-5-turbo",
+  "base_url": "https://ai-gateway.vercel.sh/v1",
+  "system_prompt": ""
+}

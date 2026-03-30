@@ -1,0 +1,115 @@
+<h1>Description</h1>
+{{Front}}
+
+<style>
+#llm-checker {
+  margin-top: 24px;
+  padding: 16px 18px;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.06);
+}
+#llm-input {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  color: inherit;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#llm-input:focus {
+  border-color: rgba(100, 149, 237, 0.6);
+}
+#llm-input::placeholder {
+  color: rgba(128, 128, 128, 0.5);
+}
+#llm-check-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 20px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(100, 149, 237, 0.75);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+#llm-check-btn:hover { background: rgba(100, 149, 237, 0.9); }
+#llm-check-btn:active { opacity: 0.8; }
+#llm-check-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+#llm-result {
+  display: none;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: rgba(128, 128, 128, 0.08);
+  border-left: 3px solid rgba(100, 149, 237, 0.5);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+#llm-result.error {
+  border-left-color: rgba(237, 100, 100, 0.5);
+}
+</style>
+
+<div id="llm-checker">
+  <textarea id="llm-input" placeholder="Describe your approach..."
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();checkAnswer();}"></textarea>
+  <button id="llm-check-btn" onclick="checkAnswer()">Check with AI</button>
+  <div id="llm-result"></div>
+</div>
+
+<script>
+function checkAnswer() {
+  var input = document.getElementById('llm-input');
+  var btn = document.getElementById('llm-check-btn');
+  var answer = input.value;
+  if (!answer.trim()) return;
+  var el = document.getElementById('llm-result');
+  el.style.display = 'block';
+  el.className = '';
+  el.innerText = 'Checking\u2026';
+  btn.disabled = true;
+  btn.innerText = 'Checking\u2026';
+  pycmd('llmcheck::' + JSON.stringify(answer));
+}
+
+function showLLMResult(text) {
+  var el = document.getElementById('llm-result');
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = '';
+  el.innerText = text;
+  _resetBtn();
+}
+
+function showLLMError(text) {
+  var el = document.getElementById('llm-result');
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = 'error';
+  el.innerText = text;
+  _resetBtn();
+}
+
+function _resetBtn() {
+  var btn = document.getElementById('llm-check-btn');
+  if (btn) { btn.disabled = false; btn.innerText = 'Check with AI'; }
+}
+</script>

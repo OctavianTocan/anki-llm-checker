@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Anki runtime
+meta.json
+
+# Backups
+*.blob
+*.bak
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
