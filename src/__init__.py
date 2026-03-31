@@ -27,6 +27,7 @@ import urllib.request
 import urllib.error
 
 from aqt import mw, gui_hooks
+from aqt.utils import openLink
 
 # Module-level state tracking the current review session.
 # _current_card_id prevents stale API responses from injecting into a
@@ -223,7 +224,17 @@ def _on_js_message(
     """
     global _current_card_id
 
-    if not isinstance(message, str) or not message.startswith("llmcheck::"):
+    if not isinstance(message, str):
+        return handled
+
+    # Open LeetCode URL in system browser
+    if message.startswith("openurl::"):
+        url = message[len("openurl::"):]
+        if url:
+            openLink(url)
+        return (True, None)
+
+    if not message.startswith("llmcheck::"):
         return handled
 
     raw = message[len("llmcheck::"):]

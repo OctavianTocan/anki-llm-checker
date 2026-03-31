@@ -1,115 +1,373 @@
-<h1>Description</h1>
+<div class="section-label">
+  <svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>
+  Problem
+</div>
 {{Front}}
 
+{{#LeetCode URL}}
+<span id="lc-url" style="display:none">{{LeetCode URL}}</span>
+<a id="lc-link" onclick="openLeetCode()" tabindex="0">Open on LeetCode →</a>
+{{/LeetCode URL}}
+
 <style>
-#llm-checker {
-  margin-top: 24px;
-  padding: 16px 18px;
-  border: 1px solid rgba(128, 128, 128, 0.25);
-  border-radius: 10px;
-  background: rgba(128, 128, 128, 0.06);
+
+
+/* ── Design System ─────────────────────────────────────
+   Spacing : 4 · 8 · 12 · 16 · 20 · 24 · 32
+   Radius  : 5 · 8 · 12
+   Type    : 11.5 · 12 · 13 · 14.5
+   ────────────────────────────────────────────────────── */
+
+/* Base */
+.card {
+  font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  color: var(--llm-text);
+  font-size: 14.5px;
+  line-height: 1.65;
+  letter-spacing: -0.008em;
+  -webkit-font-smoothing: antialiased;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* Section labels — shared pattern for Problem + Check */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--llm-text-muted);
+}
+.section-label svg {
+  width: 13px; height: 13px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Typography */
+strong { font-weight: 600; color: var(--llm-text); }
+code {
+  font-family: "SF Mono", ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.86em; padding: 1.5px 6px; border-radius: 5px;
+  background: var(--llm-btn-bg); border: 1px solid var(--llm-border);
+}
+ul, ol { padding-left: 20px; margin: 8px 0; }
+li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
+
+/* LeetCode link */
+#lc-link {
+  display: inline-block; margin-top: 16px;
+  font-size: 12px; font-weight: 500; letter-spacing: -0.01em;
+  color: var(--llm-text-muted); cursor: pointer;
+  transition: color 0.15s ease; text-decoration: none;
+}
+#lc-link:hover { color: var(--llm-text-soft); }
+
+:root {
+  --llm-text: rgba(0, 0, 0, 0.88);
+  --llm-text-soft: rgba(0, 0, 0, 0.6);
+  --llm-text-muted: rgba(0, 0, 0, 0.38);
+  --llm-text-faint: rgba(0, 0, 0, 0.22);
+  --llm-border: rgba(0, 0, 0, 0.15);
+  --llm-border-hover: rgba(0, 0, 0, 0.25);
+  --llm-border-focus: rgba(59, 130, 246, 0.5);
+  --llm-bg: rgba(255, 255, 255, 0.7);
+  --llm-bg-hover: rgba(255, 255, 255, 0.85);
+  --llm-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  --llm-shadow-hover: 0 2px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+  --llm-shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.12), 0 2px 6px rgba(0,0,0,0.08);
+  --llm-result-bg: rgba(59, 130, 246, 0.04);
+  --llm-result-border: rgba(59, 130, 246, 0.12);
+  --llm-result-shadow: 0 1px 3px rgba(59, 130, 246, 0.06);
+  --llm-err-bg: rgba(239, 68, 68, 0.05);
+  --llm-err-border: rgba(239, 68, 68, 0.15);
+  --llm-btn-bg: rgba(0, 0, 0, 0.04);
+  --llm-btn-bg-hover: rgba(59, 130, 246, 0.1);
+  --llm-btn-border-hover: rgba(59, 130, 246, 0.3);
+  --llm-shimmer-a: rgba(0, 0, 0, 0.18);
+  --llm-shimmer-b: rgba(59, 130, 246, 0.5);
+  --llm-v-again-bg: rgba(239, 68, 68, 0.1);  --llm-v-again: #dc2626;
+  --llm-v-hard-bg: rgba(245, 158, 11, 0.1);  --llm-v-hard: #d97706;
+  --llm-v-good-bg: rgba(34, 197, 94, 0.1);   --llm-v-good: #16a34a;
+  --llm-v-easy-bg: rgba(59, 130, 246, 0.1);  --llm-v-easy: #2563eb;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --llm-text: rgba(255, 255, 255, 0.9);
+    --llm-text-soft: rgba(255, 255, 255, 0.6);
+    --llm-text-muted: rgba(255, 255, 255, 0.3);
+    --llm-text-faint: rgba(255, 255, 255, 0.14);
+    --llm-border: rgba(255, 255, 255, 0.1);
+    --llm-border-hover: rgba(255, 255, 255, 0.18);
+    --llm-border-focus: rgba(99, 140, 255, 0.45);
+    --llm-bg: rgba(255, 255, 255, 0.04);
+    --llm-bg-hover: rgba(255, 255, 255, 0.065);
+    --llm-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --llm-shadow-hover: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.2);
+    --llm-shadow-focus: 0 0 0 3px rgba(99, 140, 255, 0.15), 0 2px 8px rgba(0,0,0,0.25);
+    --llm-result-bg: rgba(99, 140, 255, 0.05);
+    --llm-result-border: rgba(99, 140, 255, 0.1);
+    --llm-result-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    --llm-err-bg: rgba(239, 68, 68, 0.06);
+    --llm-err-border: rgba(239, 68, 68, 0.12);
+    --llm-btn-bg: rgba(255, 255, 255, 0.05);
+    --llm-btn-bg-hover: rgba(99, 140, 255, 0.12);
+    --llm-btn-border-hover: rgba(99, 140, 255, 0.35);
+    --llm-shimmer-a: rgba(255, 255, 255, 0.15);
+    --llm-shimmer-b: rgba(99, 140, 255, 0.6);
+    --llm-v-again-bg: rgba(239, 68, 68, 0.12); --llm-v-again: #f87171;
+    --llm-v-hard-bg: rgba(245, 158, 11, 0.12); --llm-v-hard: #fbbf24;
+    --llm-v-good-bg: rgba(34, 197, 94, 0.12);  --llm-v-good: #4ade80;
+    --llm-v-easy-bg: rgba(99, 140, 255, 0.12); --llm-v-easy: #93b4ff;
+  }
+}
+
+#llm-strip {
+  margin: 24px 0 0; padding-top: 20px;
+  border-top: 1px solid var(--llm-border);
+}
+#llm-input-wrap {
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+  border-radius: 16px;
+  border: 1px solid var(--llm-border); background: var(--llm-bg);
+  box-shadow: var(--llm-shadow);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+/* Gradient fade overlays — only visible when textarea is scrollable */
+#llm-input-wrap::before,
+#llm-input-wrap::after {
+  content: ""; position: absolute; left: 0; right: 0;
+  height: 14px; pointer-events: none; z-index: 1;
+  opacity: 0; transition: opacity 0.15s ease;
+}
+#llm-input-wrap::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--llm-bg), transparent);
+  border-radius: 16px 16px 0 0;
+}
+#llm-input-wrap::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--llm-bg), transparent);
+  border-radius: 0 0 16px 16px;
+}
+#llm-input-wrap.scrollable::before,
+#llm-input-wrap.scrollable::after {
+  opacity: 1;
+}
+#llm-input-wrap:hover { border-color: var(--llm-border-hover); box-shadow: var(--llm-shadow-hover); }
+#llm-input-wrap:focus-within {
+  border-color: var(--llm-border-focus); background: var(--llm-bg-hover);
+  box-shadow: var(--llm-shadow-focus);
 }
 #llm-input {
-  width: 100%;
-  min-height: 90px;
-  padding: 10px 12px;
-  box-sizing: border-box;
-  border: 1px solid rgba(128, 128, 128, 0.3);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.15);
-  color: inherit;
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.5;
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.2s;
+  flex: 1; min-width: 0; min-height: 44px; max-height: 160px;
+  padding: 10px 0 10px 16px; box-sizing: border-box;
+  border: none; background: transparent;
+  color: var(--llm-text); font-family: inherit; font-size: 14px;
+  line-height: 1.55; letter-spacing: -0.006em;
+  resize: none; outline: none; overflow-y: hidden;
 }
-#llm-input:focus {
-  border-color: rgba(100, 149, 237, 0.6);
-}
-#llm-input::placeholder {
-  color: rgba(128, 128, 128, 0.5);
-}
-#llm-check-btn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 7px 20px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(100, 149, 237, 0.75);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+/* Hide scrollbar while keeping scroll functional */
+#llm-input::-webkit-scrollbar { display: none; }
+#llm-input { scrollbar-width: none; }
+#llm-input::placeholder { color: var(--llm-text-faint); }
+#llm-send {
+  flex: none; margin: 0 8px 8px 4px;
+  width: 28px; height: 28px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: none;
+  background: var(--llm-text); color: var(--llm-bg-hover);
   cursor: pointer;
-  transition: background 0.2s, opacity 0.2s;
+  transition: opacity 0.15s ease, transform 0.1s ease;
 }
-#llm-check-btn:hover { background: rgba(100, 149, 237, 0.9); }
-#llm-check-btn:active { opacity: 0.8; }
-#llm-check-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
+#llm-send:hover { opacity: 0.8; }
+#llm-send:active { transform: scale(0.9); }
+#llm-send:disabled { opacity: 0.18; cursor: default; transform: none; }
+#llm-send svg {
+  width: 14px; height: 14px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
+
+#llm-thinking {
+  display: none; margin-top: 8px; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--llm-result-border); background: var(--llm-result-bg);
+  box-shadow: var(--llm-result-shadow);
+}
+#llm-thinking.visible { display: block; animation: llmIn 0.2s ease; }
+#llm-thinking span {
+  font-family: inherit; font-size: 13.5px; font-weight: 500; letter-spacing: -0.006em;
+  background: linear-gradient(90deg,
+    var(--llm-shimmer-a) 0%, var(--llm-shimmer-a) 35%,
+    var(--llm-shimmer-b) 50%, var(--llm-shimmer-a) 65%, var(--llm-shimmer-a) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: llmShimmer 2.2s ease-in-out infinite;
+}
+
 #llm-result {
-  display: none;
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: rgba(128, 128, 128, 0.08);
-  border-left: 3px solid rgba(100, 149, 237, 0.5);
-  font-size: 14px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
+  display: none; margin-top: 8px; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--llm-result-border); background: var(--llm-result-bg);
+  box-shadow: var(--llm-result-shadow); font-size: 13.5px; line-height: 1.7;
+  letter-spacing: -0.006em; color: var(--llm-text-soft);
 }
-#llm-result.error {
-  border-left-color: rgba(237, 100, 100, 0.5);
+#llm-result.error { background: var(--llm-err-bg); border-color: var(--llm-err-border); }
+
+#llm-verdict { display: none; margin-bottom: 10px; }
+#llm-verdict span {
+  display: inline-block; padding: 2px 9px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: -0.01em; font-family: inherit;
 }
+#llm-verdict .again { background: var(--llm-v-again-bg); color: var(--llm-v-again); }
+#llm-verdict .hard  { background: var(--llm-v-hard-bg);  color: var(--llm-v-hard); }
+#llm-verdict .good  { background: var(--llm-v-good-bg);  color: var(--llm-v-good); }
+#llm-verdict .easy  { background: var(--llm-v-easy-bg);  color: var(--llm-v-easy); }
+#llm-body { white-space: pre-wrap; word-break: break-word; }
+
+/* Blinking cursor at end of streaming text */
+#llm-body.streaming::after {
+  content: '\25AE';
+  display: inline;
+  animation: llmBlink 0.6s steps(2) infinite;
+  color: var(--llm-text-muted);
+  margin-left: 1px;
+}
+
+@keyframes llmShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+@keyframes llmIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes llmBlink { 0% { opacity: 1; } 100% { opacity: 0; } }
+
 </style>
 
-<div id="llm-checker">
-  <textarea id="llm-input" placeholder="Describe your approach..."
-    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();checkAnswer();}"></textarea>
-  <button id="llm-check-btn" onclick="checkAnswer()">Check with AI</button>
-  <div id="llm-result"></div>
+<div id="llm-strip">
+  <div id="llm-input-wrap">
+    <textarea id="llm-input" rows="1" placeholder="Describe your approach..."
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();checkAnswer();}"
+      oninput="this.style.height='auto';var h=Math.min(this.scrollHeight,160);this.style.height=h+'px';this.style.overflowY=this.scrollHeight>160?'auto':'hidden';this.parentElement.classList.toggle('scrollable',this.scrollHeight>160);"></textarea>
+    <button id="llm-send" onclick="checkAnswer()" aria-label="Check">
+      <svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+    </button>
+  </div>
+
+  <div id="llm-thinking"><span>Thinking...</span></div>
+
+  <div id="llm-result" style="display:none;">
+    <div id="llm-verdict"><span></span></div>
+    <div id="llm-body"></div>
+  </div>
 </div>
 
 <script>
+
+function openLeetCode() {
+  var el = document.getElementById('lc-url');
+  if (!el) return;
+  var anchor = el.querySelector('a');
+  var url = anchor ? anchor.href : el.textContent.trim();
+  if (url) pycmd('openurl::' + url);
+}
+
+var _llmHasChecked = false;
+
 function checkAnswer() {
-  var input = document.getElementById('llm-input');
-  var btn = document.getElementById('llm-check-btn');
-  var answer = input.value;
+  var answer = document.getElementById('llm-input').value;
   if (!answer.trim()) return;
-  var el = document.getElementById('llm-result');
-  el.style.display = 'block';
-  el.className = '';
-  el.innerText = 'Checking\u2026';
+
+  /* Hide result, hide verdict, show shimmer */
+  document.getElementById('llm-result').style.display = 'none';
+  document.getElementById('llm-verdict').style.display = 'none';
+  document.getElementById('llm-body').className = '';
+  document.getElementById('llm-body').innerText = '';
+  document.getElementById('llm-thinking').className = 'visible';
+
+  var btn = document.getElementById('llm-send');
   btn.disabled = true;
-  btn.innerText = 'Checking\u2026';
+
   pycmd('llmcheck::' + JSON.stringify(answer));
 }
 
+/** Called by Python for each streaming chunk — shows accumulated text so far. */
+function streamLLMChunk(text) {
+  try {
+    /* Hide shimmer on first chunk, show result card */
+    document.getElementById('llm-thinking').className = '';
+    var el = document.getElementById('llm-result');
+    el.style.display = 'block';
+    el.className = '';
+
+    /* Set text with blinking cursor class */
+    var body = document.getElementById('llm-body');
+    body.className = 'streaming';
+    body.innerText = text;
+  } catch(e) {}
+}
+
+/** Called by Python when the stream is complete — does verdict extraction + button reset. */
+function finalizeLLMStream(text) {
+  try {
+    _llmHasChecked = true;
+    document.getElementById('llm-thinking').className = '';
+
+    /* Remove streaming cursor */
+    var body = document.getElementById('llm-body');
+    body.className = '';
+
+    /* Extract verdict */
+    var verdict = '';
+    try {
+      var vm = text.match(/(?:suggest(?:ed)?|recommend(?:ed)?)\s+(?:anki\s+)?(?:button|rating|grade)?[:\s]*(again|hard|good|easy)/i);
+      if (!vm) vm = text.match(/\b(Again|Hard|Good|Easy)\s*$/m);
+      if (vm) verdict = vm[1].charAt(0).toUpperCase() + vm[1].slice(1).toLowerCase();
+    } catch(e) {}
+
+    var ve = document.getElementById('llm-verdict');
+    if (verdict) {
+      ve.style.display = 'block';
+      var s = ve.querySelector('span');
+      s.className = verdict.toLowerCase();
+      s.textContent = '\u2192 ' + verdict;
+    } else { ve.style.display = 'none'; }
+
+    /* Clean verdict line from body */
+    var bodyText = text;
+    if (verdict) {
+      try {
+        var cleaned = text.replace(/(?:suggest(?:ed)?|recommend(?:ed)?)\s+(?:anki\s+)?(?:button|rating|grade)?[:\s]*(again|hard|good|easy)\s*/i, '').trim();
+        if (cleaned) bodyText = cleaned;
+      } catch(e) {}
+    }
+    body.innerText = bodyText;
+
+    var el = document.getElementById('llm-result');
+    el.style.display = 'block';
+    el.className = '';
+  } catch(e) {}
+  _llmReset();
+}
+
+/** Legacy non-streaming fallback — also used by reviewer_did_show_answer hook. */
 function showLLMResult(text) {
-  var el = document.getElementById('llm-result');
-  if (!el) return;
-  el.style.display = 'block';
-  el.className = '';
-  el.innerText = text;
-  _resetBtn();
+  document.getElementById('llm-thinking').className = '';
+  finalizeLLMStream(text);
 }
 
 function showLLMError(text) {
+  document.getElementById('llm-thinking').className = '';
   var el = document.getElementById('llm-result');
-  if (!el) return;
+  document.getElementById('llm-verdict').style.display = 'none';
+  document.getElementById('llm-body').className = '';
+  document.getElementById('llm-body').innerText = text;
   el.style.display = 'block';
   el.className = 'error';
-  el.innerText = text;
-  _resetBtn();
+  _llmReset();
 }
 
-function _resetBtn() {
-  var btn = document.getElementById('llm-check-btn');
-  if (btn) { btn.disabled = false; btn.innerText = 'Check with AI'; }
+function _llmReset() {
+  var btn = document.getElementById('llm-send');
+  if (btn) btn.disabled = false;
 }
 </script>

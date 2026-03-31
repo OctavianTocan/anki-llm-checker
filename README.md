@@ -19,10 +19,11 @@ OpenAI-compatible API (Vercel AI Gateway)
 Card Template (displays response with blinking cursor)
 ```
 
-1. A textarea and "Check with AI" button are added to your card template's front side
-2. Type your answer, press Enter (or click the button)
-3. The add-on streams the LLM response token-by-token into the card
+1. A compact chat-style input is added to your card template's front side
+2. Type your answer, press Enter (or click the send button)
+3. The add-on streams the LLM response token-by-token with a blinking cursor
 4. Feedback persists when you flip to the back side
+5. Optional "Open on LeetCode" link if the card has a LeetCode URL field
 
 ## Installation
 
@@ -59,7 +60,19 @@ Any OpenAI-compatible API works — Vercel AI Gateway, OpenRouter, local Ollama,
 
 ## Card template setup
 
-Add the contents of `card-template-front.html` to your card template's front side in Anki (via **Tools > Manage Note Types > Cards > Front Template**). The template provides the textarea, button, result display, and all styling. It works with both light and dark Anki themes.
+Add the contents of `card-template-front.html` to your card template's front side in Anki (via **Tools > Manage Note Types > Cards > Front Template**). The template provides:
+
+- Modern chat-style input with circular send button
+- Auto-growing textarea with hidden scrollbar and gradient fade
+- Design system with consistent typography, section labels, and spacing
+- Shimmer thinking animation and streaming response with blinking cursor
+- Verdict badge (Again / Hard / Good / Easy)
+- Optional LeetCode URL link (uses the `LeetCode URL` field if present)
+- Light and dark theme support via CSS custom properties
+
+### Patch scripts
+
+The `patch-*.py` and `update-template.py` scripts modify the live template directly in Anki's SQLite database (protobuf format). Close Anki before running them. These are development tools for iterating on the template without manual copy-paste.
 
 ## Security
 
