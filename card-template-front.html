@@ -96,32 +96,41 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --llm-text: rgba(255, 255, 255, 0.9);
-    --llm-text-soft: rgba(255, 255, 255, 0.6);
-    --llm-text-muted: rgba(255, 255, 255, 0.3);
-    --llm-text-faint: rgba(255, 255, 255, 0.14);
-    --llm-border: rgba(255, 255, 255, 0.1);
-    --llm-border-hover: rgba(255, 255, 255, 0.18);
-    --llm-border-focus: rgba(99, 140, 255, 0.45);
-    --llm-bg: rgba(255, 255, 255, 0.04);
-    --llm-bg-hover: rgba(255, 255, 255, 0.065);
-    --llm-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
-    --llm-shadow-hover: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.2);
-    --llm-shadow-focus: 0 0 0 3px rgba(99, 140, 255, 0.15), 0 2px 8px rgba(0,0,0,0.25);
-    --llm-result-bg: rgba(99, 140, 255, 0.05);
-    --llm-result-border: rgba(99, 140, 255, 0.1);
-    --llm-result-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    --llm-err-bg: rgba(239, 68, 68, 0.06);
-    --llm-err-border: rgba(239, 68, 68, 0.12);
-    --llm-btn-bg: rgba(255, 255, 255, 0.05);
-    --llm-btn-bg-hover: rgba(99, 140, 255, 0.12);
-    --llm-btn-border-hover: rgba(99, 140, 255, 0.35);
-    --llm-shimmer-a: rgba(255, 255, 255, 0.15);
-    --llm-shimmer-b: rgba(99, 140, 255, 0.6);
-    --llm-v-again-bg: rgba(239, 68, 68, 0.12); --llm-v-again: #f87171;
-    --llm-v-hard-bg: rgba(245, 158, 11, 0.12); --llm-v-hard: #fbbf24;
-    --llm-v-good-bg: rgba(34, 197, 94, 0.12);  --llm-v-good: #4ade80;
-    --llm-v-easy-bg: rgba(99, 140, 255, 0.12); --llm-v-easy: #93b4ff;
+    /* Text hierarchy — bumped for readability during study sessions */
+    --llm-text: rgba(255, 255, 255, 0.93);
+    --llm-text-soft: rgba(255, 255, 255, 0.72);
+    --llm-text-muted: rgba(255, 255, 255, 0.44);
+    --llm-text-faint: rgba(255, 255, 255, 0.24);
+    /* Borders — visible without being distracting */
+    --llm-border: rgba(255, 255, 255, 0.13);
+    --llm-border-hover: rgba(255, 255, 255, 0.22);
+    --llm-border-focus: rgba(115, 148, 255, 0.5);
+    /* Surfaces — enough presence to register as interactive */
+    --llm-bg: rgba(255, 255, 255, 0.065);
+    --llm-bg-hover: rgba(255, 255, 255, 0.085);
+    /* Shadows — dark-on-dark is invisible; use subtle glows instead */
+    --llm-shadow: none;
+    --llm-shadow-hover: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --llm-shadow-focus: 0 0 0 3px rgba(115, 148, 255, 0.18), 0 0 12px rgba(115, 148, 255, 0.08);
+    /* Result card */
+    --llm-result-bg: rgba(115, 148, 255, 0.07);
+    --llm-result-border: rgba(115, 148, 255, 0.15);
+    --llm-result-shadow: none;
+    /* Error */
+    --llm-err-bg: rgba(239, 68, 68, 0.08);
+    --llm-err-border: rgba(239, 68, 68, 0.16);
+    /* Code blocks & buttons — clearly differentiated from bg */
+    --llm-btn-bg: rgba(255, 255, 255, 0.09);
+    --llm-btn-bg-hover: rgba(115, 148, 255, 0.14);
+    --llm-btn-border-hover: rgba(115, 148, 255, 0.38);
+    /* Shimmer */
+    --llm-shimmer-a: rgba(255, 255, 255, 0.18);
+    --llm-shimmer-b: rgba(115, 148, 255, 0.65);
+    /* Verdict badges — richer fills */
+    --llm-v-again-bg: rgba(239, 68, 68, 0.15); --llm-v-again: #f87171;
+    --llm-v-hard-bg: rgba(245, 158, 11, 0.15); --llm-v-hard: #fbbf24;
+    --llm-v-good-bg: rgba(34, 197, 94, 0.15);  --llm-v-good: #4ade80;
+    --llm-v-easy-bg: rgba(115, 148, 255, 0.15); --llm-v-easy: #93b4ff;
   }
 }
 
@@ -187,6 +196,9 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
 #llm-send:hover { opacity: 0.8; }
 #llm-send:active { transform: scale(0.9); }
 #llm-send:disabled { opacity: 0.18; cursor: default; transform: none; }
+@media (prefers-color-scheme: dark) {
+  #llm-send { color: rgba(0, 0, 0, 0.75); }
+}
 #llm-send svg {
   width: 14px; height: 14px; stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
