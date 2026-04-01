@@ -253,6 +253,87 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
 @keyframes llmIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes llmBlink { 0% { opacity: 1; } 100% { opacity: 0; } }
 
+/* ── Code Editor ──────────────────────────────────── */
+#llm-code-toggle {
+  display: inline-block; margin-top: 8px;
+  font-size: 12px; font-weight: 500; letter-spacing: -0.01em;
+  color: var(--llm-text-muted); cursor: pointer;
+  transition: color 0.15s ease; user-select: none;
+}
+#llm-code-toggle:hover { color: var(--llm-text-soft); }
+
+#llm-code-section {
+  display: none; margin-top: 8px;
+  animation: llmIn 0.2s ease;
+}
+#llm-code-section.visible { display: block; }
+
+#llm-code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+#llm-lang {
+  font-family: inherit; font-size: 11.5px; font-weight: 500;
+  color: var(--llm-text-muted); background: var(--llm-btn-bg);
+  border: 1px solid var(--llm-border); border-radius: 6px;
+  padding: 3px 8px; cursor: pointer; outline: none;
+}
+@media (prefers-color-scheme: dark) {
+  #llm-lang { color-scheme: dark; }
+}
+
+#llm-code-editor {
+  font-family: "SF Mono", ui-monospace, "Cascadia Code", monospace;
+  font-size: 13px; line-height: 1.55; tab-size: 2;
+  color: var(--llm-text); position: relative;
+  padding: 12px 16px; min-height: 80px; max-height: 300px;
+  overflow: auto; outline: none; white-space: pre;
+  border-radius: 12px;
+  border: 1px solid var(--llm-border); background: var(--llm-bg);
+  box-shadow: var(--llm-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+#llm-code-editor::-webkit-scrollbar { display: none; }
+#llm-code-editor { scrollbar-width: none; }
+#llm-code-editor:focus {
+  border-color: var(--llm-border-focus);
+  box-shadow: var(--llm-shadow-focus);
+}
+/* Placeholder overlay when editor is empty */
+#llm-code-editor.empty::before {
+  content: 'Write your solution...';
+  color: var(--llm-text-faint);
+  position: absolute; pointer-events: none;
+}
+
+/* ── Prism Token Theme ─────────────────────────── */
+/* Light mode tokens */
+#llm-code-editor .token.comment,
+#llm-code-editor .token.prolog,
+#llm-code-editor .token.doctype { color: var(--llm-text-muted); font-style: italic; }
+#llm-code-editor .token.punctuation { color: var(--llm-text-soft); }
+#llm-code-editor .token.keyword { color: #7c3aed; }
+#llm-code-editor .token.string,
+#llm-code-editor .token.attr-value { color: #16a34a; }
+#llm-code-editor .token.number,
+#llm-code-editor .token.boolean { color: #ea580c; }
+#llm-code-editor .token.function { color: #2563eb; }
+#llm-code-editor .token.class-name,
+#llm-code-editor .token.builtin { color: #0891b2; }
+#llm-code-editor .token.operator { color: var(--llm-text-soft); }
+/* Dark mode token overrides */
+@media (prefers-color-scheme: dark) {
+  #llm-code-editor .token.keyword { color: #c792ea; }
+  #llm-code-editor .token.string,
+  #llm-code-editor .token.attr-value { color: #a5d6a7; }
+  #llm-code-editor .token.number,
+  #llm-code-editor .token.boolean { color: #f8a978; }
+  #llm-code-editor .token.function { color: #93b4ff; }
+  #llm-code-editor .token.class-name,
+  #llm-code-editor .token.builtin { color: #80cbc4; }
+}
+
 </style>
 
 <div id="llm-strip">
@@ -265,6 +346,25 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
     </button>
   </div>
 
+  <a id="llm-code-toggle" onclick="toggleCode()" tabindex="0">Add code &#x2192;</a>
+
+  <div id="llm-code-section">
+    <div id="llm-code-header">
+      <div class="section-label">
+        <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        Code
+      </div>
+      <select id="llm-lang" onchange="changeLang(this.value)">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+        <option value="go">Go</option>
+      </select>
+    </div>
+    <div id="llm-code-editor" class="empty"></div>
+  </div>
+
   <div id="llm-thinking"><span>Thinking...</span></div>
 
   <div id="llm-result" style="display:none;">
@@ -274,6 +374,90 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
 </div>
 
 <script>
+
+/* ── Code Editor CDN Loading ── */
+window.Prism = window.Prism || {};
+Prism.manual = true;
+
+var _jar = null;
+var _currentLang = 'python';
+
+/** Dynamically load a script from URL. */
+function _loadScript(url) {
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = url; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+/** Highlight callback for CodeJar — uses current Prism language. */
+function _highlight(el) {
+  var code = el.textContent;
+  var g = Prism.languages[_currentLang];
+  if (g) el.innerHTML = Prism.highlight(code, g, _currentLang);
+}
+
+/* Load Prism core → language packs → CodeJar from CDN */
+var _editorReady = _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js')
+  .then(function() {
+    return Promise.all([
+      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js'),
+      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js'),
+      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js'),
+      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js'),
+      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js'),
+    ]);
+  })
+  .then(function() {
+    return import('https://cdn.jsdelivr.net/npm/codejar@4.3.0/dist/codejar.js');
+  })
+  .then(function(m) {
+    window._CodeJarFactory = m.CodeJar;
+    return true;
+  })
+  .catch(function() {
+    /* CDN unavailable — hide code toggle, textarea still works */
+    var t = document.getElementById('llm-code-toggle');
+    if (t) t.style.display = 'none';
+    return false;
+  });
+
+/** Toggle code editor visibility. Creates editor on first open. */
+function toggleCode() {
+  var section = document.getElementById('llm-code-section');
+  var toggle = document.getElementById('llm-code-toggle');
+
+  if (section.classList.contains('visible')) {
+    section.classList.remove('visible');
+    toggle.innerHTML = 'Add code &#x2192;';
+    return;
+  }
+
+  section.classList.add('visible');
+  toggle.innerHTML = 'Hide code &#x2191;';
+
+  /* Init editor on first expand */
+  if (!_jar && window._CodeJarFactory) {
+    var el = document.getElementById('llm-code-editor');
+    _jar = window._CodeJarFactory(el, _highlight, { tab: '  ' });
+    _jar.onUpdate(function(code) {
+      el.classList.toggle('empty', !code.trim());
+    });
+    setTimeout(function() { el.focus(); }, 50);
+  }
+}
+
+/** Switch syntax highlighting language. */
+function changeLang(lang) {
+  _currentLang = lang;
+  if (_jar) _jar.updateCode(_jar.toString());
+}
+
+/* Auto-expand code editor for LeetCode cards after CDN loads */
+_editorReady.then(function(ok) {
+  if (ok && document.getElementById('lc-url')) toggleCode();
+});
 
 function openLeetCode() {
   var el = document.getElementById('lc-url');
@@ -287,7 +471,14 @@ var _llmHasChecked = false;
 
 function checkAnswer() {
   var answer = document.getElementById('llm-input').value;
-  if (!answer.trim()) return;
+  var code = _jar ? _jar.toString() : '';
+  if (!answer.trim() && !code.trim()) return;
+
+  /* Combine natural-language explanation with code */
+  var combined = answer.trim();
+  if (code.trim()) {
+    combined += '\n\nCode:\n```\n' + code.trim() + '\n```';
+  }
 
   /* Hide result, hide verdict, show shimmer */
   document.getElementById('llm-result').style.display = 'none';
@@ -299,7 +490,7 @@ function checkAnswer() {
   var btn = document.getElementById('llm-send');
   btn.disabled = true;
 
-  pycmd('llmcheck::' + JSON.stringify(answer));
+  pycmd('llmcheck::' + JSON.stringify(combined));
 }
 
 /** Called by Python for each streaming chunk — shows accumulated text so far. */
