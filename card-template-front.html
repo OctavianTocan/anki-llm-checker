@@ -372,25 +372,44 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
   .ace-anki .ace_variable.ace_class { color: #80cbc4; }
 }
 
-/* ── Autocomplete Popup ──────────────────────────── */
-.ace_autocomplete {
-  border: 1px solid var(--llm-border) !important;
-  border-radius: 8px !important;
-  box-shadow: var(--llm-shadow) !important;
-  background: var(--llm-bg-hover) !important;
-  overflow: hidden;
+/* ── Autocomplete Popup ──────────────────────────────
+   Popup is appended to document.body, not inside .card.
+   Must use opaque colors (no alpha) and !important to
+   override Ace's injected stylesheet.
+   ──────────────────────────────────────────────────── */
+/* Light mode */
+.ace_editor.ace_autocomplete {
+  background: #f8f8fa !important; color: #1a1a1a !important;
+  border: 1px solid #d4d4d8 !important; border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important; overflow: hidden;
 }
-.ace_autocomplete .ace_line { color: var(--llm-text); padding: 0 8px; }
-.ace_autocomplete .ace_marker-layer .ace_active-line {
-  background: rgba(59, 130, 246, 0.1) !important;
+.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+  background: #e0e7ff !important;
 }
-.ace_autocomplete .ace_completion-highlight { color: #2563eb; }
-.ace_autocomplete .ace_completion-meta { color: var(--llm-text-muted); font-size: 0.9em; }
-@media (prefers-color-scheme: dark) {
-  .ace_autocomplete .ace_marker-layer .ace_active-line {
-    background: rgba(115, 148, 255, 0.15) !important;
-  }
-  .ace_autocomplete .ace_completion-highlight { color: #93b4ff; }
+.ace_editor.ace_autocomplete .ace_line-hover {
+  background: rgba(59,130,246,0.08) !important;
+  border-color: transparent !important;
+}
+.ace_editor.ace_autocomplete .ace_completion-highlight { color: #2563eb !important; }
+.ace_editor.ace_autocomplete .ace_completion-meta { color: #71717a !important; opacity: 1 !important; }
+/* Dark mode — triggered by isDark: true adding ace_dark class */
+.ace_dark.ace_editor.ace_autocomplete {
+  background: #1e1e2e !important; color: #e0e0e6 !important;
+  border: 1px solid #3a3a4a !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.ace_dark.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+  background: rgba(115, 148, 255, 0.18) !important;
+}
+.ace_dark.ace_editor.ace_autocomplete .ace_line-hover {
+  background: rgba(115, 148, 255, 0.1) !important;
+  border-color: transparent !important;
+}
+.ace_dark.ace_editor.ace_autocomplete .ace_completion-highlight { color: #93b4ff !important; }
+.ace_dark.ace_editor.ace_autocomplete .ace_completion-meta { color: #71717a !important; opacity: 1 !important; }
+/* Scrollbar inside popup */
+.ace_autocomplete > .ace_sb-v div {
+  background: rgba(128,128,128,0.3) !important; border: none !important; border-radius: 3px !important;
 }
 
 </style>
@@ -477,6 +496,30 @@ function toggleCode() {
   /* Init Ace on first expand */
   if (!_ace && window.ace) {
     ace.config.set('basePath', _ACE_CDN);
+    var langTools = ace.require('ace/ext/language_tools');
+
+    /* Custom keyword completer — Ace's built-in one relies on modes
+       exposing $keywordList, which not all modes do (e.g. TypeScript). */
+    var _kw = {
+      python: 'False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield self print len range list dict set tuple int str float bool input open type map filter sorted enumerate zip',
+      javascript: 'async await break case catch class const continue debugger default delete do else export extends finally for function if import in instanceof let new of return static super switch this throw try typeof var void while with yield null undefined true false console log',
+      typescript: 'abstract any as async await bigint boolean break case catch class const constructor continue debugger declare default delete do else enum export extends false finally for from function get if implements import in infer instanceof interface is keyof let module namespace never new null number of package private protected public readonly return set static string super switch symbol this throw true try type typeof undefined unique unknown var void while with yield console log',
+      java: 'abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new null package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while true false System out println',
+      cpp: 'auto bool break case catch char class const constexpr continue default delete do double dynamic_cast else enum explicit export extern false float for friend goto if inline int long mutable namespace new noexcept nullptr operator private protected public register reinterpret_cast return short signed sizeof static static_cast struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile while cout cin endl std vector string map set',
+      go: 'break case chan const continue default defer else fallthrough false for func go goto if import interface iota map nil package range return select struct switch true type var append cap close complex copy delete imag len make new panic print println real recover fmt Println Printf Sprintf Errorf'
+    };
+    langTools.addCompleter({
+      getCompletions: function(editor, session, pos, prefix, cb) {
+        if (!prefix) return cb(null, []);
+        var words = (_kw[_currentLang] || '').split(' ');
+        cb(null, words.filter(function(w) {
+          return w.toLowerCase().indexOf(prefix.toLowerCase()) === 0;
+        }).map(function(w) {
+          return { caption: w, value: w, score: 1000, meta: 'keyword' };
+        }));
+      }
+    });
+
     var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     _ace = ace.edit('llm-code-editor', {
