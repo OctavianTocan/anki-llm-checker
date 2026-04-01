@@ -273,65 +273,124 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
   margin-bottom: 6px;
 }
 
-#llm-lang {
-  font-family: inherit; font-size: 11.5px; font-weight: 500;
-  color: var(--llm-text-muted); background: var(--llm-btn-bg);
-  border: 1px solid var(--llm-border); border-radius: 6px;
-  padding: 3px 8px; cursor: pointer; outline: none;
+#llm-lang-pills {
+  display: flex; gap: 4px;
 }
-@media (prefers-color-scheme: dark) {
-  #llm-lang { color-scheme: dark; }
+#llm-lang-pills button {
+  font-family: inherit; font-size: 11px; font-weight: 500;
+  color: var(--llm-text-muted); background: var(--llm-btn-bg);
+  border: 1px solid transparent; border-radius: 6px;
+  padding: 2px 8px; cursor: pointer; outline: none;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+#llm-lang-pills button:hover {
+  color: var(--llm-text-soft); background: var(--llm-btn-bg-hover);
+}
+#llm-lang-pills button.active {
+  color: var(--llm-text-soft); border-color: var(--llm-border);
+  background: var(--llm-btn-bg-hover);
 }
 
+/* Ace container — border/radius/shadow only; Ace owns everything inside */
 #llm-code-editor {
-  font-family: "SF Mono", ui-monospace, "Cascadia Code", monospace;
-  font-size: 13px; line-height: 1.55; tab-size: 2;
-  color: var(--llm-text); position: relative;
-  padding: 12px 16px; min-height: 80px; max-height: 300px;
-  overflow: auto; outline: none; white-space: pre;
-  border-radius: 12px;
-  border: 1px solid var(--llm-border); background: var(--llm-bg);
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--llm-border);
   box-shadow: var(--llm-shadow);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-#llm-code-editor::-webkit-scrollbar { display: none; }
-#llm-code-editor { scrollbar-width: none; }
-#llm-code-editor:focus {
+#llm-code-editor:hover {
+  border-color: var(--llm-border-hover);
+  box-shadow: var(--llm-shadow-hover);
+}
+#llm-code-editor.ace_focus {
   border-color: var(--llm-border-focus);
   box-shadow: var(--llm-shadow-focus);
 }
-/* Placeholder overlay when editor is empty */
-#llm-code-editor.empty::before {
-  content: 'Write your solution...';
-  color: var(--llm-text-faint);
-  position: absolute; pointer-events: none;
+
+/* ── Ace Anki Theme ──────────────────────────────── */
+/* Editor surface */
+.ace-anki { color: var(--llm-text); background: var(--llm-bg); }
+
+/* Gutter (line numbers) */
+.ace-anki .ace_gutter {
+  background: var(--llm-btn-bg); color: var(--llm-text-muted);
+  border-right: 1px solid var(--llm-border);
+}
+.ace-anki .ace_gutter-active-line {
+  background: transparent; color: var(--llm-text-soft);
 }
 
-/* ── Prism Token Theme ─────────────────────────── */
-/* Light mode tokens */
-#llm-code-editor .token.comment,
-#llm-code-editor .token.prolog,
-#llm-code-editor .token.doctype { color: var(--llm-text-muted); font-style: italic; }
-#llm-code-editor .token.punctuation { color: var(--llm-text-soft); }
-#llm-code-editor .token.keyword { color: #7c3aed; }
-#llm-code-editor .token.string,
-#llm-code-editor .token.attr-value { color: #16a34a; }
-#llm-code-editor .token.number,
-#llm-code-editor .token.boolean { color: #ea580c; }
-#llm-code-editor .token.function { color: #2563eb; }
-#llm-code-editor .token.class-name,
-#llm-code-editor .token.builtin { color: #0891b2; }
-#llm-code-editor .token.operator { color: var(--llm-text-soft); }
-/* Dark mode token overrides */
+/* Cursor & selection */
+.ace-anki .ace_cursor { color: var(--llm-text); }
+.ace-anki .ace_marker-layer .ace_selection { background: rgba(59, 130, 246, 0.15); }
+.ace-anki .ace_marker-layer .ace_active-line { background: rgba(0, 0, 0, 0.04); }
+.ace-anki .ace_marker-layer .ace_bracket { border: 1px solid var(--llm-text-muted); margin: -1px 0 0 -1px; }
+.ace-anki .ace_print-margin { display: none; }
+.ace-anki .ace_invisible { color: var(--llm-text-faint); }
+.ace-anki .ace_indent-guide { border-right: 1px solid var(--llm-border); }
+
+/* Placeholder */
+.ace-anki .ace_placeholder {
+  font-family: "SF Mono", ui-monospace, "Cascadia Code", monospace;
+  color: var(--llm-text-faint) !important;
+  padding: 0 !important; transform: none !important;
+  opacity: 1 !important; font-style: normal !important;
+}
+
+/* ── Syntax Tokens (Light) ───────────────────────── */
+.ace-anki .ace_comment { color: var(--llm-text-muted); font-style: italic; }
+.ace-anki .ace_keyword,
+.ace-anki .ace_storage { color: #7c3aed; }
+.ace-anki .ace_string { color: #16a34a; }
+.ace-anki .ace_constant.ace_numeric,
+.ace-anki .ace_constant.ace_boolean,
+.ace-anki .ace_constant.ace_language { color: #ea580c; }
+.ace-anki .ace_entity.ace_name.ace_function,
+.ace-anki .ace_support.ace_function { color: #2563eb; }
+.ace-anki .ace_support.ace_class,
+.ace-anki .ace_support.ace_type,
+.ace-anki .ace_variable.ace_class { color: #0891b2; }
+.ace-anki .ace_punctuation,
+.ace-anki .ace_paren,
+.ace-anki .ace_operator { color: var(--llm-text-soft); }
+.ace-anki .ace_variable { color: var(--llm-text); }
+
+/* ── Syntax Tokens (Dark) ────────────────────────── */
 @media (prefers-color-scheme: dark) {
-  #llm-code-editor .token.keyword { color: #c792ea; }
-  #llm-code-editor .token.string,
-  #llm-code-editor .token.attr-value { color: #a5d6a7; }
-  #llm-code-editor .token.number,
-  #llm-code-editor .token.boolean { color: #f8a978; }
-  #llm-code-editor .token.function { color: #93b4ff; }
-  #llm-code-editor .token.class-name,
-  #llm-code-editor .token.builtin { color: #80cbc4; }
+  .ace-anki .ace_marker-layer .ace_selection { background: rgba(115, 148, 255, 0.2); }
+  .ace-anki .ace_marker-layer .ace_active-line { background: rgba(255, 255, 255, 0.04); }
+  .ace-anki .ace_keyword,
+  .ace-anki .ace_storage { color: #c792ea; }
+  .ace-anki .ace_string { color: #a5d6a7; }
+  .ace-anki .ace_constant.ace_numeric,
+  .ace-anki .ace_constant.ace_boolean,
+  .ace-anki .ace_constant.ace_language { color: #f8a978; }
+  .ace-anki .ace_entity.ace_name.ace_function,
+  .ace-anki .ace_support.ace_function { color: #93b4ff; }
+  .ace-anki .ace_support.ace_class,
+  .ace-anki .ace_support.ace_type,
+  .ace-anki .ace_variable.ace_class { color: #80cbc4; }
+}
+
+/* ── Autocomplete Popup ──────────────────────────── */
+.ace_autocomplete {
+  border: 1px solid var(--llm-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--llm-shadow) !important;
+  background: var(--llm-bg-hover) !important;
+  overflow: hidden;
+}
+.ace_autocomplete .ace_line { color: var(--llm-text); padding: 0 8px; }
+.ace_autocomplete .ace_marker-layer .ace_active-line {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+.ace_autocomplete .ace_completion-highlight { color: #2563eb; }
+.ace_autocomplete .ace_completion-meta { color: var(--llm-text-muted); font-size: 0.9em; }
+@media (prefers-color-scheme: dark) {
+  .ace_autocomplete .ace_marker-layer .ace_active-line {
+    background: rgba(115, 148, 255, 0.15) !important;
+  }
+  .ace_autocomplete .ace_completion-highlight { color: #93b4ff; }
 }
 
 </style>
@@ -354,15 +413,16 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
         <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
         Code
       </div>
-      <select id="llm-lang" onchange="changeLang(this.value)">
-        <option value="python">Python</option>
-        <option value="javascript">JavaScript</option>
-        <option value="java">Java</option>
-        <option value="cpp">C++</option>
-        <option value="go">Go</option>
-      </select>
+      <div id="llm-lang-pills">
+        <button class="active" onclick="changeLang('python',this)">Py</button>
+        <button onclick="changeLang('javascript',this)">JS</button>
+        <button onclick="changeLang('typescript',this)">TS</button>
+        <button onclick="changeLang('java',this)">Java</button>
+        <button onclick="changeLang('cpp',this)">C++</button>
+        <button onclick="changeLang('go',this)">Go</button>
+      </div>
     </div>
-    <div id="llm-code-editor" class="empty"></div>
+    <div id="llm-code-editor"></div>
   </div>
 
   <div id="llm-thinking"><span>Thinking...</span></div>
@@ -375,12 +435,11 @@ li { margin: 4px 0; line-height: 1.6; color: var(--llm-text-soft); }
 
 <script>
 
-/* ── Code Editor CDN Loading ── */
-window.Prism = window.Prism || {};
-Prism.manual = true;
-
-var _jar = null;
+/* ── Code Editor (Ace) ── */
+var _ace = null;
 var _currentLang = 'python';
+var _langMap = { python: 'python', javascript: 'javascript', typescript: 'typescript', java: 'java', cpp: 'c_cpp', go: 'golang' };
+var _ACE_CDN = 'https://cdn.jsdelivr.net/npm/ace-builds@1.36.5/src-min-noconflict';
 
 /** Dynamically load a script from URL. */
 function _loadScript(url) {
@@ -391,39 +450,17 @@ function _loadScript(url) {
   });
 }
 
-/** Highlight callback for CodeJar — uses current Prism language. */
-function _highlight(el) {
-  var code = el.textContent;
-  var g = Prism.languages[_currentLang];
-  if (g) el.innerHTML = Prism.highlight(code, g, _currentLang);
-}
-
-/* Load Prism core → language packs → CodeJar from CDN */
-var _editorReady = _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js')
-  .then(function() {
-    return Promise.all([
-      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js'),
-      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js'),
-      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js'),
-      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js'),
-      _loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js'),
-    ]);
-  })
-  .then(function() {
-    return import('https://cdn.jsdelivr.net/npm/codejar@4.3.0/dist/codejar.js');
-  })
-  .then(function(m) {
-    window._CodeJarFactory = m.CodeJar;
-    return true;
-  })
+/* Load Ace core → autocomplete extension from CDN */
+var _editorReady = _loadScript(_ACE_CDN + '/ace.js')
+  .then(function() { return _loadScript(_ACE_CDN + '/ext-language_tools.js'); })
+  .then(function() { return true; })
   .catch(function() {
-    /* CDN unavailable — hide code toggle, textarea still works */
     var t = document.getElementById('llm-code-toggle');
     if (t) t.style.display = 'none';
     return false;
   });
 
-/** Toggle code editor visibility. Creates editor on first open. */
+/** Toggle code editor visibility. Creates Ace instance on first open. */
 function toggleCode() {
   var section = document.getElementById('llm-code-section');
   var toggle = document.getElementById('llm-code-toggle');
@@ -437,21 +474,52 @@ function toggleCode() {
   section.classList.add('visible');
   toggle.innerHTML = 'Hide code &#x2191;';
 
-  /* Init editor on first expand */
-  if (!_jar && window._CodeJarFactory) {
-    var el = document.getElementById('llm-code-editor');
-    _jar = window._CodeJarFactory(el, _highlight, { tab: '  ' });
-    _jar.onUpdate(function(code) {
-      el.classList.toggle('empty', !code.trim());
+  /* Init Ace on first expand */
+  if (!_ace && window.ace) {
+    ace.config.set('basePath', _ACE_CDN);
+    var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    _ace = ace.edit('llm-code-editor', {
+      mode: 'ace/mode/' + _langMap[_currentLang],
+      placeholder: 'Write your solution\u2026',
+      maxLines: 20,
+      minLines: 3,
+      fontSize: '13px',
+      fontFamily: '"SF Mono", ui-monospace, "Cascadia Code", monospace',
+      showPrintMargin: false,
+      tabSize: 2,
+      useSoftTabs: true,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
+      enableSnippets: false,
+      showGutter: true,
+      highlightActiveLine: true,
+      highlightSelectedWord: true,
+      behavioursEnabled: true,
+      wrapBehavioursEnabled: true,
+      useWorker: false
     });
-    setTimeout(function() { el.focus(); }, 50);
+
+    _ace.setTheme({ cssClass: 'ace-anki', isDark: isDark, cssText: '', $id: 'ace/theme/anki' });
+
+    /* Track dark/light mode changes */
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (_ace) _ace.setTheme({ cssClass: 'ace-anki', isDark: e.matches, cssText: '', $id: 'ace/theme/anki' });
+    });
+
+    setTimeout(function() { _ace.focus(); }, 50);
   }
 }
 
 /** Switch syntax highlighting language. */
-function changeLang(lang) {
+function changeLang(lang, btn) {
   _currentLang = lang;
-  if (_jar) _jar.updateCode(_jar.toString());
+  if (_ace) _ace.session.setMode('ace/mode/' + _langMap[lang]);
+  if (btn) {
+    var pills = document.getElementById('llm-lang-pills').children;
+    for (var i = 0; i < pills.length; i++) pills[i].className = '';
+    btn.className = 'active';
+  }
 }
 
 /* Auto-expand code editor for LeetCode cards after CDN loads */
@@ -471,7 +539,7 @@ var _llmHasChecked = false;
 
 function checkAnswer() {
   var answer = document.getElementById('llm-input').value;
-  var code = _jar ? _jar.toString() : '';
+  var code = _ace ? _ace.getValue() : '';
   if (!answer.trim() && !code.trim()) return;
 
   /* Combine natural-language explanation with code */
